@@ -77,14 +77,6 @@ function estore_woocommerce_widgets_init() {
  */
 function estore_woocommerce_settings_register( $wp_customize ) {
 
-	// WooCommerce Category Color Options
-	$wp_customize->add_panel( 'estore_woocommerce_panel', array(
-		'priority'    => 1000,
-		'title'       => esc_html__( 'WooCommerce Settings', 'estore' ),
-		'capability'  => 'edit_theme_options',
-		'description' => esc_html__( 'Change WooCommerce settings related to theme.', 'estore' )
-	) );
-
 	// Header My Account Link
 	$wp_customize->add_setting( 'estore_header_ac_btn', array(
 			'default'           => '',
@@ -116,41 +108,6 @@ function estore_woocommerce_settings_register( $wp_customize ) {
 			'priority' => 20
 		)
 	);
-
-	$wp_customize->add_section( 'estore_woocommerce_category_color_setting', array(
-		'priority' => 1,
-		'title'    => esc_html__( 'Category Color Settings', 'estore' ),
-		'panel'    => 'estore_woocommerce_panel'
-	) );
-
-	$priority         = 1;
-	$categories       = get_terms( 'product_cat' ); // Get all WooCommerce Categories
-	$wp_category_list = array();
-
-	foreach ( $categories as $category_list ) {
-
-		$wp_customize->add_setting( 'estore_woocommerce_category_color_' . $category_list->term_id,
-			array(
-				'default'              => '',
-				'capability'           => 'edit_theme_options',
-				'sanitize_callback'    => 'estore_hex_color_sanitize',
-				'sanitize_js_callback' => 'estore_color_escaping_sanitize'
-			)
-		);
-
-		$wp_customize->add_control(
-			new WP_Customize_Color_Control(
-				$wp_customize, 'estore_woocommerce_category_color_' . $category_list->term_id,
-				array(
-					'label'    => sprintf( __( ' %s', 'estore' ), $category_list->name ),
-					'section'  => 'estore_woocommerce_category_color_setting',
-					'settings' => 'estore_woocommerce_category_color_' . $category_list->term_id,
-					'priority' => $priority
-				)
-			)
-		);
-		$priority++;
-	}
 
 	// WooCommerce Pages layout
 	$wp_customize->add_section(
@@ -247,53 +204,6 @@ function estore_woocommerce_settings_register( $wp_customize ) {
 }
 
 add_action( 'customize_register', 'estore_woocommerce_settings_register' );
-
-if ( ! function_exists( 'estore_woocommerce_category_color_css' ) ) :
-	/**
-	 * Generate color for WooCommerce Category and print on head
-	 */
-	function estore_woocommerce_category_color_css() {
-
-		$categories = get_terms( 'product_cat', array( 'hide_empty' => false ) );
-
-		//print_r($categories);
-
-		$cat_color_css = '';
-		foreach ( $categories as $category ) {
-			$cat_color   = get_theme_mod( 'estore_woocommerce_category_color_' . $category->term_id );
-			$hover_color = estore_darkcolor( $cat_color, -20 );
-			$cat_id      = $category->term_id;
-			if ( ! empty( $cat_color ) ) {
-				$cat_color_css .= '
-
-			/* Border Color */
-			.widget-collection .estore-cat-color_' . $cat_id . ' .cart-wishlist-btn a.added_to_cart:hover::after, .widget-collection .estore-cat-color_' . $cat_id . ' .cart-wishlist-btn a.added_to_cart::after, .woocommerce-page .estore-cat-color_' . $cat_id . ' ul.products li.product .products-img .products-hover-wrapper .products-hover-block a:hover, .widget-collection .estore-cat-color_' . $cat_id . '  .cart-wishlist-btn a i, .estore-cat-color_' . $cat_id . ' .hot-product-content-wrapper .hot-img {border-color: ' . $cat_color . '}
-			/* Background Color */
-			  .widget-collection .estore-cat-color_' . $cat_id . ' .cart-wishlist-btn a.added_to_cart:hover::after, .woocommerce-page .estore-cat-color_' . $cat_id . ' ul.products li.product .products-img .products-hover-wrapper .products-hover-block a:hover, .woocommerce-page .estore-cat-color_' . $cat_id . ' ul.products li.product .yith-wcwl-add-to-wishlist .add_to_wishlist.button.alt, .woocommerce-page .estore-cat-color_' . $cat_id . ' ul.products li.product .yith-wcwl-add-to-wishlist .yith-wcwl-wishlistexistsbrowse a, .woocommerce-page .estore-cat-color_' . $cat_id . ' ul.products li.product .yith-wcwl-add-to-wishlist .yith-wcwl-wishlistaddedbrowse a,.product-collection.estore-cat-color_' . $cat_id . ' .page-title::after,.estore-cat-color_' . $cat_id . ' .hot-content-wrapper .single_add_to_wishlist, .widget-collection .estore-cat-color_' . $cat_id . ' .cart-wishlist-btn a i:hover, .estore-cat-color_' . $cat_id . ' .hot-product-title, .widget-collection .estore-cat-color_' . $cat_id . '  .page-title::after{background: ' . $cat_color . '}
-			/* Color */
-			.estore-cat-color_' . $cat_id . ' .hot-content-wrapper .hot-title a:hover, .estore-cat-color_' . $cat_id . ' .hot-product-content-wrapper .hot-img .cart-price-wrapper .added_to_cart:hover, .widget-collection .estore-cat-color_' . $cat_id . ' .cart-wishlist-btn a.added_to_cart::after, .woocommerce-page .estore-cat-color_' . $cat_id . '  ul.products li.product .price ins, .estore-cat-color_' . $cat_id . ' .product-list-wrap .product-list-block .product-list-content .price ins, .woocommerce-page .estore-cat-color_' . $cat_id . ' ul.products li.product .products-title a:hover, .woocommerce-page .estore-cat-color_' . $cat_id . ' ul.products li.product .star-rating, .estore-cat-color_' . $cat_id . ' .view-all a:hover, .estore-cat-color_' . $cat_id . '  .hot-product-content-wrapper .hot-img .cart-price-wrapper .add_to_cart_button:hover, .widget-collection .estore-cat-color_' . $cat_id . '  .cart-wishlist-btn a i, .estore-cat-color_' . $cat_id . ' .product-list-wrap .product-list-block .product-list-content .product-list-title a:hover, .estore-cat-color_' . $cat_id . ' .hot-content-wrapper .star-rating, .estore-cat-color_' . $cat_id . ' .sorting-form-wrapper a, .estore-cat-color_' . $cat_id . ' .section-title-wrapper .section-title-block .page-title a:hover{color:' . $cat_color . '}
-
-			/*hover */
-			.estore-cat-color_' . $cat_id . ' .hot-content-wrapper .single_add_to_wishlist:hover,
-			.woocommerce-page .estore-cat-color_' . $cat_id . ' ul.products li.product .yith-wcwl-add-to-wishlist .add_to_wishlist.button.alt:hover,
-			.woocommerce-page .estore-cat-color_' . $cat_id . ' ul.products li.product .yith-wcwl-add-to-wishlist .yith-wcwl-wishlistexistsbrowse a:hover,
-			.woocommerce-page .estore-cat-color_' . $cat_id . ' ul.products li.product .yith-wcwl-add-to-wishlist .yith-wcwl-wishlistaddedbrowse a:hover{
-				background: ' . $hover_color . '
-			}
-			';
-			}
-		}
-
-		if ( ! empty( $cat_color_css ) ) {
-			?>
-			<!-- WooCommerce Category Color -->
-			<style type="text/css"><?php echo $cat_color_css; ?></style>
-			<?php
-		}
-	}
-endif;
-
-add_action( 'wp_head', 'estore_woocommerce_category_color_css', 30 );
 
 if ( ! function_exists( 'estore_template_loop_product_thumbnail' ) ) {
 

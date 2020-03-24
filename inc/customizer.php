@@ -692,47 +692,6 @@ function estore_customize_register( $wp_customize ) {
 		)
 	);
 
-	// Category Color Section.
-	$wp_customize->add_section(
-		'estore_category_color_setting',
-		array(
-			'priority' => 1,
-			'title'    => esc_html__( 'Category Color Settings', 'estore' ),
-			'panel'    => 'estore_additional_options',
-		)
-	);
-
-	$priority         = 1;
-	$categories       = get_terms( 'category' ); // Get all Categories.
-	$wp_category_list = array();
-
-	foreach ( $categories as $category_list ) {
-
-		$wp_customize->add_setting(
-			'estore_category_color_' . esc_html( strtolower( $category_list->name ) ),
-			array(
-				'default'              => '',
-				'capability'           => 'edit_theme_options',
-				'sanitize_callback'    => 'estore_hex_color_sanitize',
-				'sanitize_js_callback' => 'estore_color_escaping_sanitize',
-			)
-		);
-
-		$wp_customize->add_control(
-			new WP_Customize_Color_Control(
-				$wp_customize,
-				'estore_category_color_' . esc_html( strtolower( $category_list->name ) ),
-				array(
-					'label'    => sprintf( esc_html__( ' %s', 'estore' ), esc_html( $category_list->name ) ),
-					'section'  => 'estore_category_color_setting',
-					'settings' => 'estore_category_color_' . esc_html( strtolower( $category_list->name ) ),
-					'priority' => $priority,
-				)
-			)
-		);
-		$priority ++;
-	}
-
 	// Post Meta Section.
 	$wp_customize->add_section(
 		'estore_postmeta_section',
