@@ -233,6 +233,42 @@ function estore_sidebar_select() {
 }
 endif;
 
+if( ! function_exists( 'estore_category_color_css' ) ) :
+/**
+ * Generate color for Category and print on head
+ */
+function estore_category_color_css(){
+
+	$categories = get_terms( 'category', array( 'hide_empty' => false ) );
+
+	$cat_color_css = '';
+	foreach($categories as $category){
+		$cat_color = get_theme_mod( 'estore_category_color_'.strtolower($category->name) );
+		$hover_color = estore_darkcolor($cat_color, -200);
+		$cat_id = $category->term_id;
+		if(!empty($cat_color)) {
+			$cat_color_css .= '
+
+			/* Border Color */
+			.estore-cat-color_'.$cat_id.' .cart-wishlist-btn a i, .estore-cat-color_'.$cat_id.' .cart-wishlist-btn a i:hover, .estore-cat-color_'.$cat_id.' .hot-product-content-wrapper .hot-img{border-color: '.$cat_color.'}
+			/* Background Color */
+			.estore-cat-color_'.$cat_id.' .cart-wishlist-btn a i:hover, .estore-cat-color_'.$cat_id.' .hot-content-wrapper .single_add_to_wishlist, .estore-cat-color_'.$cat_id.' .hot-content-wrapper .single_add_to_wishlist:hover, .estore-cat-color_'.$cat_id.' .hot-product-title, .widget-collection .estore-cat-color_'.$cat_id.' .page-title::after, .estore-cat-color_'.$cat_id.' .widget-featured-collection .page-title:after{background: '.$cat_color.'}
+			/* Color */
+			.estore-cat-color_'.$cat_id.' .sorting-form-wrapper a,.estore-cat-color_'.$cat_id.' .section-title-wrapper .section-title-block .page-title a:hover, .estore-cat-color_'.$cat_id.' .hot-content-wrapper .star-rating, .estore-cat-color_'.$cat_id.' .hot-content-wrapper .hot-title a:hover, .estore-cat-color_'.$cat_id.' .cart-wishlist-btn a i, .estore-cat-color_'.$cat_id.' .product-list-wrap .product-list-block .product-list-content .price ins, .estore-cat-color_'.$cat_id.' .product-list-wrap .product-list-block .product-list-content .product-list-title a:hover, .estore-cat-color_'.$cat_id.' .hot-product-content-wrapper .hot-img .cart-price-wrapper .add_to_cart_button:hover{color:'.$cat_color.'}
+			';
+		}
+	}
+
+	if( !empty( $cat_color_css ) ) {
+	?>
+		<!-- Category Color --><style type="text/css"><?php echo $cat_color_css; ?></style>
+	<?php
+	}
+}
+endif;
+
+add_action('wp_head', 'estore_category_color_css', 20);
+
 if( ! function_exists( 'estore_darkcolor' ) ) :
 /**
  * Generate darker color
